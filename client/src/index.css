@@ -18,3 +18,20 @@ body{
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+/* Add this to your CSS file */
+.profile-image-container {
+  cursor: pointer;
+}
+
+.profile-image-container:active {
+  /* This prevents the hover state from persisting after click */
+  transform: scale(0.98);
+}
+
+/* Ensure clicks work properly on mobile */
+@media (hover: none) {
+  .profile-image-container:hover {
+    /* Remove hover effects on touch devices */
+    transform: none;
+  }
+}

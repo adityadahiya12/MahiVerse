@@ -91,6 +91,7 @@ const LoginPage = () => {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             className="border border-gray-500 p-2 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            autoComplete="name" // FIXED: Added autocomplete attribute
             required
           />
         )}
@@ -101,6 +102,7 @@ const LoginPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="border border-gray-500 p-2 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          autoComplete="email" // FIXED: Added autocomplete attribute
           required
         />
 
@@ -110,6 +112,8 @@ const LoginPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="border border-gray-500 p-2 rounded-md bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          // FIXED: Added dynamic autocomplete for password
+          autoComplete={currState === 'Sign Up' ? 'new-password' : 'current-password'}
           required
         />
 

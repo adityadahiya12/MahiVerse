@@ -1,24 +1,25 @@
 import express from "express";
 import { protectRoute } from "../middleware/auth.js";
-import { 
-  getMessages, 
-  getUsersForSidebar, 
+
+import {
+  getMessages,
+  getUsersForSidebar,
   markMessageAsSeen,
   sendMessage
 } from "../controllers/messageController.js";
 
 const messageRouter = express.Router();
 
-// ✅ Get all users for sidebar
+// Get sidebar users
 messageRouter.get("/users", protectRoute, getUsersForSidebar);
 
-// ✅ Get messages between logged-in user and another user
+// Get chat messages
 messageRouter.get("/:id", protectRoute, getMessages);
 
-// ✅ Mark a message as seen
+// Mark message as seen
 messageRouter.put("/mark/:id", protectRoute, markMessageAsSeen);
 
-// ✅ Send a message
-messageRouter.post("/send", protectRoute, sendMessage);
+// Send message
+messageRouter.post("/send/:id", protectRoute, sendMessage);
 
 export default messageRouter;

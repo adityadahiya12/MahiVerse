@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react"; // ✅ added useContext
+import React, { useState, useContext } from "react"; 
 import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
 import { AuthContext } from "../context/AuthContext";
@@ -13,28 +13,70 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   // Default profile info
-  const [name, setName] = useState(authUser.fullName);
-  const [bio, setBio] = useState(authUser.bio);
+const [name, setName] = useState(authUser?.fullName || "");
+const [bio, setBio] = useState(authUser?.bio || "");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
+  try {
+
+    // Update without image
     if (!selectedImg) {
-      // ✅ Update without image
-      await updateProfile({ fullName: name, bio });
-      navigate("/");
+
+      const result = await updateProfile({
+        fullName: name,
+        bio,
+      });
+
+      if (result.success) {
+        navigate("/");
+      }
+
       return;
     }
 
-    // ✅ Convert image to Base64
+    // LIMIT IMAGE SIZE
+    if (selectedImg.size > 1024 * 1024) {
+
+      alert("Image size should be less than 1MB");
+
+      return;
+    }
+
     const reader = new FileReader();
+
     reader.readAsDataURL(selectedImg);
-    reader.onload = async () => {
-      const base64Image = reader.result;
-      await updateProfile({ fullName: name, bio, profilePic: base64Image });
-      navigate("/");
+
+    reader.onloadend = async () => {
+
+      try {
+
+        const base64Image = reader.result;
+
+        console.log(base64Image);
+
+        const result = await updateProfile({
+          fullName: name,
+          bio,
+          profilePic: base64Image,
+        });
+
+        if (result.success) {
+          navigate("/");
+        }
+
+      } catch (err) {
+
+        console.log("UPLOAD ERROR:", err);
+      }
     };
-  };
+
+  } catch (error) {
+
+    console.log(error);
+  }
+};
 
   return (
     <div className="min-h-screen flex bg-cover bg-center items-center justify-center gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl">

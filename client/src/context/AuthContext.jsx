@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     if (token) {
       try {
-        axios.defaults.headers.common["token"] = token;
-        const { data } = await axios.get("/api/users/check-auth"); // ✅ fixed endpoint
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const { data } = await axios.get("/api/auth/check-auth");
         if (data.success) {
           setAuthUser(data.user);
           connectSocket(data.user);
@@ -37,9 +37,9 @@ export const AuthProvider = ({ children }) => {
   // ================================
   const login = async (state, credentials) => {
     try {
-      const { data } = await axios.post(`/api/users/${state}`, credentials); // ✅ fixed endpoint
+      const { data } = await axios.post(`/api/auth/${state}`, credentials);
       if (data.success) {
-        axios.defaults.headers.common["token"] = data.token;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
         setToken(data.token);
         localStorage.setItem("token", data.token);
         setAuthUser(data.user);
@@ -48,10 +48,10 @@ export const AuthProvider = ({ children }) => {
       } else {
         Toast.error(data.message);
       }
-      return data; // ✅ return data so LoginPage can handle it
+      return data;
     } catch (error) {
       Toast.error("Error logging in: " + error.message);
-      return { success: false, message: error.message }; // ✅ safe return
+      return { success: false, message: error.message };
     }
   };
 
@@ -59,38 +59,55 @@ export const AuthProvider = ({ children }) => {
   // Logout
   // ================================
   const logout = async () => {
-    try {
-      await axios.post("/api/users/logout"); // ✅ fixed endpoint
-      Toast.success("Logged out successfully");
-      setAuthUser(null);
-      setToken(null);
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["token"];
-      socket?.disconnect();
-      setSocket(null);
-      setOnlineUsers([]);
-    } catch (error) {
-      Toast.error("Error logging out: " + error.message);
-    }
-  };
+  try {
+    
+    Toast.success("Logged out successfully");
+    setAuthUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
+    socket?.disconnect();
+    setSocket(null);
+    setOnlineUsers([]);
+  } catch (error) {
+    Toast.error("Error logging out: " + error.message);
+  }
+};
 
-  // ================================
-  // Update Profile
-  // ================================
-  const updateProfile = async (body) => {
-    try {
-      const { data } = await axios.put("/api/users/update-profile", body); // ✅ fixed endpoint
-      if (data.success) {
-        setAuthUser(data.user);
-        Toast.success("Profile updated successfully");
-      } else {
-        Toast.error(data.message);
-      }
-    } catch (error) {
-      Toast.error("Error updating profile: " + error.message);
-    }
-  };
+const updateProfile = async (body) => {
+  try {
 
+    const token = localStorage.getItem("token");
+
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    const { data } = await axios.put(
+      "/api/auth/update-profile",
+      body
+    );
+
+    if (data.success) {
+      setAuthUser(data.user);
+      Toast.success("Profile updated successfully");
+    } else {
+      Toast.error(data.message);
+    }
+
+    return data;
+
+  } catch (error) {
+
+    console.log(error.response?.data);
+
+    Toast.error(
+      error.response?.data?.message || "Error updating profile"
+    );
+
+    return {
+      success: false,
+    };
+  }
+};
   // ================================
   // Connect Socket
   // ================================
@@ -104,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id);
+      console.log("✅ Socket connected:", newSocket.id);
     });
 
     newSocket.on("getOnlineUsers", (usersIDs) => {
@@ -116,8 +133,12 @@ export const AuthProvider = ({ children }) => {
   // Run once on mount
   // ================================
   useEffect(() => {
+
+  if (token) {
     checkAuth();
-  }, []);
+  }
+
+}, [token]);
 
   const value = {
     axios,
