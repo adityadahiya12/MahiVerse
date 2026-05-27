@@ -269,7 +269,7 @@ Cloudinary is used for:
 
 # 👨‍💻 Author
 
-## Addy Chaudhary
+## Aditya
 
 B.Tech Computer Science Student
 Frontend & MERN Stack Developer
