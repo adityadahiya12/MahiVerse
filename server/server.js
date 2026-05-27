@@ -65,39 +65,23 @@ app.use("/api/status", (req, res) => {
 app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
-app.get("/test-cloudinary", async (req, res) => {
 
-  try {
-
-    const result = await cloudinary.api.ping();
-
-    res.json({
-      success: true,
-      result
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
 
 // Start server with DB connection
 const startServer = async () => {
   try {
     await connectDB();
-    const PORT = process.env.PORT || 3000;
+    if(
+      const PORT = process.env.PORT || 3000;
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`)
     });
+    )
   } catch (error) {
     console.error("❌ Failed to start server:", error);
   }
 };
 
+// export server for vercel
+export  default server;
 startServer();
